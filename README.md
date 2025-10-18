@@ -1,0 +1,1 @@
+# sprint_17_vision_artificial
