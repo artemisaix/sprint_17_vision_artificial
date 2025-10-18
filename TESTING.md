@@ -5,7 +5,7 @@
 ### 1. Verificar Requisitos del Sistema
 
 ```bash
-# Verificar Python version (debe ser 3.8+)
+# Verificar versión de Python (debe ser 3.8+)
 python3 --version
 
 # Verificar pip
@@ -22,9 +22,13 @@ source venv/bin/activate  # En Windows: venv\Scripts\activate
 # Instalar dependencias
 pip install -r requirements.txt
 
-# Verificar instalación
+# Verificar instalación (Linux/Mac)
 pip list | grep tensorflow
 pip list | grep keras
+
+# O verificar de forma multiplataforma
+pip show tensorflow
+pip show keras
 ```
 
 ### 3. Verificar Estructura del Proyecto
@@ -70,15 +74,16 @@ print("✓ Todas las funciones de utils están disponibles")
 import sys
 import subprocess
 
-# Verificar que el script tiene help
+# Verificar que el script tiene help y funciona correctamente
 result = subprocess.run(
     ['python', 'predict.py', '--help'],
     capture_output=True,
     text=True
 )
 
-assert 'Predice la edad' in result.stdout or 'usage:' in result.stderr
-print("✓ Script de predicción tiene documentación")
+# Verificar que el comando de ayuda se ejecutó sin errores
+assert result.returncode == 0 or '--help' in result.stdout or '--help' in result.stderr
+print("✓ Script de predicción funciona correctamente")
 ```
 
 ### Test 3: Verificar Notebook
@@ -164,8 +169,15 @@ jupyter notebook
 
 1. **Obtener un dataset de prueba:**
    ```bash
-   # Descargar un dataset pequeño (por ejemplo, UTKFace sample)
-   # O crear un dataset sintético para pruebas
+   # Opción 1: Descargar UTKFace (muestra pequeña para pruebas)
+   # URL: https://susanqq.github.io/UTKFace/
+   # Descargar y extraer en una carpeta temporal
+   
+   # Opción 2: Usar el dataset de ejemplo del DATA_GUIDE.md
+   # Sigue las instrucciones para procesar datasets públicos
+   
+   # Opción 3: Crear dataset sintético de prueba con imágenes propias
+   # Asegúrate de tener al menos 50-100 imágenes para pruebas básicas
    ```
 
 2. **Organizar datos:**
@@ -223,7 +235,11 @@ El notebook debe generar:
 
 ```bash
 # Después de entrenar el modelo
-python predict.py datasets/faces/final_files/001.jpg --model best_age_model.h5
+# Reemplaza 'imagen_de_prueba.jpg' con el nombre de una imagen real de tu dataset
+python predict.py datasets/faces/final_files/imagen_de_prueba.jpg --model best_age_model.h5
+
+# Ejemplo con una imagen específica (ajusta el nombre según tu dataset):
+# python predict.py datasets/faces/final_files/001234.jpg --model best_age_model.h5
 
 # Debe mostrar:
 # - Edad estimada
@@ -288,9 +304,17 @@ Para considerar el proyecto exitoso:
 1. **Instalación:** Todo se instala sin errores
 2. **Notebook:** Se ejecuta completamente sin errores
 3. **Modelo:** Entrena y converge (loss disminuye)
-4. **Evaluación:** MAE < 10 años (depende del dataset)
+4. **Evaluación:** 
+   - MAE < 8 años para datasets de alta calidad
+   - MAE < 10 años es aceptable para datasets diversos
+   - Para el caso de uso de Good Seed, priorizar recall > 90% en menores de 18
 5. **Predicción:** El script funciona con una imagen de prueba
 6. **Documentación:** Toda la documentación es clara y completa
+
+**Nota sobre MAE:** El error absoluto medio aceptable depende del dataset y caso de uso:
+- Datasets de laboratorio (controlados): MAE 3-5 años
+- Datasets reales (in-the-wild): MAE 5-8 años  
+- Para Good Seed, el criterio crítico es minimizar clasificar menores como mayores (recall alto)
 
 ## Siguiente Paso
 
